@@ -34,6 +34,15 @@ public class ButtonOnScreen : MonoBehaviour,
     [Tooltip("Отправка сообщений в консоль")]
     public bool debug = false;
 
+    public UnityEvent OnHold;
+    private IEnumerator hold;
+
+    private IEnumerator Holding() {
+        while (true) {
+            OnHold?.Invoke();
+            yield return new WaitForFixedUpdate();
+        }
+    }
 
     private void SendDebug(string message) {
         if (debug) {
@@ -49,6 +58,9 @@ public class ButtonOnScreen : MonoBehaviour,
     public void OnPointerDown(PointerEventData eventData) {
         SendDebug("Down");
         OnDownButton?.Invoke();
+
+        hold = Holding();
+        StartCoroutine(hold);
     }
 
     public void OnPointerEnter(PointerEventData eventData) {
@@ -62,6 +74,9 @@ public class ButtonOnScreen : MonoBehaviour,
     }
 
     public void OnPointerUp(PointerEventData eventData) {
+        if (hold != null) StopCoroutine(hold);
+        hold = null;
+
         SendDebug("Up");
         OnUpButton?.Invoke();
     }
