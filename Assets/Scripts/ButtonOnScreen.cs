@@ -2,6 +2,7 @@ using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.UI;
+
 using UnityEngine.EventSystems;
 using UnityEngine.Events;
 
@@ -31,11 +32,24 @@ public class ButtonOnScreen : MonoBehaviour,
     /// </summary>
     public UnityEvent OnUpButton;
 
+
+    public UnityEvent OnHold;
+    private IEnumerator hold = null;
+
     [Tooltip("Отправка сообщений в консоль")]
     public bool debug = false;
 
-    public UnityEvent OnHold;
-    private IEnumerator hold;
+    private void StartCorotuneHold() {
+        if (hold != null) return;
+        
+        hold = Holding();
+        StartCoroutine(hold);
+    }
+
+    private void EndCorotuneHold() {
+        if (hold != null) StopCoroutine(hold);
+        hold = null;
+    }
 
     private IEnumerator Holding() {
         while (true) {
@@ -59,23 +73,27 @@ public class ButtonOnScreen : MonoBehaviour,
         SendDebug("Down");
         OnDownButton?.Invoke();
 
-        hold = Holding();
-        StartCoroutine(hold);
+        StartCorotuneHold();
     }
 
     public void OnPointerEnter(PointerEventData eventData) {
         SendDebug("Enter");
+
+        StartCorotuneHold();
+
         OnEnterButton?.Invoke();
     }
 
     public void OnPointerExit(PointerEventData eventData) {
         SendDebug("Exit");
+
+        EndCorotuneHold();
+
         OnExitButton?.Invoke();
     }
 
     public void OnPointerUp(PointerEventData eventData) {
-        if (hold != null) StopCoroutine(hold);
-        hold = null;
+        EndCorotuneHold();
 
         SendDebug("Up");
         OnUpButton?.Invoke();
