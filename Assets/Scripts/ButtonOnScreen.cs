@@ -32,6 +32,7 @@ public class ButtonOnScreen : MonoBehaviour,
     /// </summary>
     public UnityEvent OnUpButton;
 
+    public float value = 0;
 
     public UnityEvent OnHold;
     private IEnumerator hold = null;
@@ -97,5 +98,14 @@ public class ButtonOnScreen : MonoBehaviour,
 
         SendDebug("Up");
         OnUpButton?.Invoke();
+    }
+
+    private void FixedUpdate() {
+        if (hold != null) {
+            value = 1;
+        }
+        else {
+            value = 0;
+        }
     }
 }
